@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { me, logout } from "./api/auth";
 import Login from "./pages/Login";
+import Home from "./pages/Home";
 import Containers from "./pages/Containers";
+import Layout from "./components/Layout";
 
 export default function App() {
   const [status, setStatus] = useState("loading"); // loading | authed | anon
@@ -30,14 +33,13 @@ export default function App() {
   if (status === "anon") return <Login onLogin={checkAuth} />;
 
   return (
-    <div>
-      <div className="flex justify-end items-center gap-3 max-w-4xl mx-auto pt-4 px-6 text-sm text-gray-500">
-        <span>{username}</span>
-        <button onClick={handleLogout} className="underline">
-          Log out
-        </button>
-      </div>
-      <Containers />
-    </div>
+    <BrowserRouter>
+      <Layout username={username} onLogout={handleLogout}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/containers" element={<Containers />} />
+        </Routes>
+      </Layout>
+    </BrowserRouter>
   );
 }

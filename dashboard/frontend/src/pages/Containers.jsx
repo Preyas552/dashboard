@@ -5,10 +5,11 @@ import {
   stopContainer,
   restartContainer,
 } from "../api/containers";
+import { PlayIcon, StopCircleIcon, RefreshIcon } from "../components/icons";
 
-const STATUS_COLORS = {
-  running: "text-green-600",
-  exited: "text-gray-400",
+const STATUS_STYLES = {
+  running: { dot: "bg-good", text: "text-good", bg: "bg-good/10" },
+  exited: { dot: "bg-gray-400", text: "text-gray-500 dark:text-gray-400", bg: "bg-gray-100 dark:bg-gray-800" },
 };
 
 export default function Containers() {
@@ -42,53 +43,93 @@ export default function Containers() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-semibold mb-4">Containers</h1>
-      {error && <p className="text-red-600 mb-4">{error}</p>}
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="border-b">
-            <th className="py-2">Name</th>
-            <th className="py-2">Image</th>
-            <th className="py-2">Status</th>
-            <th className="py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {containers.map((c) => (
-            <tr key={c.id} className="border-b">
-              <td className="py-2">{c.name}</td>
-              <td className="py-2 text-sm text-gray-500">{c.image}</td>
-              <td className={`py-2 ${STATUS_COLORS[c.status] || ""}`}>
-                {c.status}
-              </td>
-              <td className="py-2 space-x-2">
-                <button
-                  disabled={pendingId === c.id}
-                  onClick={() => handleAction(startContainer, c.id)}
-                  className="px-2 py-1 text-sm bg-green-100 rounded disabled:opacity-50"
-                >
-                  Start
-                </button>
-                <button
-                  disabled={pendingId === c.id}
-                  onClick={() => handleAction(stopContainer, c.id)}
-                  className="px-2 py-1 text-sm bg-red-100 rounded disabled:opacity-50"
-                >
-                  Stop
-                </button>
-                <button
-                  disabled={pendingId === c.id}
-                  onClick={() => handleAction(restartContainer, c.id)}
-                  className="px-2 py-1 text-sm bg-yellow-100 rounded disabled:opacity-50"
-                >
-                  Restart
-                </button>
-              </td>
+    <div className="px-6 py-10">
+      <h1 className="text-2xl font-semibold tracking-tight">Containers</h1>
+      <p className="text-gray-500 dark:text-gray-400 mt-1">
+        {containers.length} container{containers.length === 1 ? "" : "s"} on this host
+      </p>
+
+      {error && (
+        <div className="mt-4 rounded-lg border border-critical/20 bg-critical/10 text-critical px-4 py-3 text-sm">
+          {error}
+        </div>
+      )}
+
+      <div className="mt-6 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm overflow-hidden">
+        <table className="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr className="bg-gray-50 dark:bg-gray-950/50 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <th className="py-3 px-5 font-medium">Name</th>
+              <th className="py-3 px-5 font-medium">Image</th>
+              <th className="py-3 px-5 font-medium">Status</th>
+              <th className="py-3 px-5 font-medium">Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {containers.map((c) => {
+              const style = STATUS_STYLES[c.status] ?? STATUS_STYLES.exited;
+              const busy = pendingId === c.id;
+              return (
+                <tr
+                  key={c.id}
+                  className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-950/50 transition-colors"
+                >
+                  <td className="py-3 px-5 font-medium">{c.name}</td>
+                  <td className="py-3 px-5 text-gray-500 dark:text-gray-400 font-mono text-xs">
+                    {c.image}
+                  </td>
+                  <td className="py-3 px-5">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${style.bg} ${style.text}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
+                      {c.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-5">
+                    <div className="flex gap-1.5">
+                      <ActionButton
+                        label="Start"
+                        icon={<PlayIcon width={13} height={13} />}
+                        colorClass="text-good hover:bg-good/10"
+                        disabled={busy}
+                        onClick={() => handleAction(startContainer, c.id)}
+                      />
+                      <ActionButton
+                        label="Stop"
+                        icon={<StopCircleIcon width={13} height={13} />}
+                        colorClass="text-critical hover:bg-critical/10"
+                        disabled={busy}
+                        onClick={() => handleAction(stopContainer, c.id)}
+                      />
+                      <ActionButton
+                        label="Restart"
+                        icon={<RefreshIcon width={13} height={13} />}
+                        colorClass="text-accent hover:bg-accent/10"
+                        disabled={busy}
+                        onClick={() => handleAction(restartContainer, c.id)}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
+  );
+}
+
+function ActionButton({ label, icon, colorClass, disabled, onClick }) {
+  return (
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors disabled:opacity-40 disabled:pointer-events-none ${colorClass}`}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }

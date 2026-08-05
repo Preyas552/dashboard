@@ -1,0 +1,38 @@
+services:
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    restart: unless-stopped
+    network_mode: host
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+    command:
+      - '--path.rootfs=/host'
+
+  smartctl_exporter:
+    image: prometheuscommunity/smartctl-exporter
+    container_name: smartctl_exporter
+    restart: unless-stopped
+    network_mode: host
+    privileged: true
+    user: root
+    command:
+      - '--no-smartctl.scan'
+      - '--smartctl.device=/dev/sdb'
+      - '--smartctl.device=/dev/nvme0'
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+volumes:
+  prometheus-data:

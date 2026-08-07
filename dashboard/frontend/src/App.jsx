@@ -4,6 +4,7 @@ import { me, logout } from "./api/auth";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Containers from "./pages/Containers";
+import Schedules from "./pages/Schedules";
 import Layout from "./components/Layout";
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/containers" element={<Containers />} />
+          <Route path="/schedules" element={<Schedules />} />
         </Routes>
       </Layout>
     </BrowserRouter>

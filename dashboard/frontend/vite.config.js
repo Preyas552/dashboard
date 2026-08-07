@@ -11,6 +11,7 @@ export default defineConfig({
       '/containers': { target: 'http://127.0.0.1:8080', changeOrigin: true },
       '/health': { target: 'http://127.0.0.1:8080', changeOrigin: true },
       '/auth': { target: 'http://127.0.0.1:8080', changeOrigin: true },
+      '/schedules': { target: 'http://127.0.0.1:8080', changeOrigin: true },
     },
   },
 })

@@ -1,9 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { BoxIcon, LogOutIcon } from "./icons";
+import { BoxIcon, LogOutIcon, ActivityIcon, ExternalLinkIcon } from "./icons";
+
+const GRAFANA_URL = import.meta.env.VITE_GRAFANA_URL;
 
 const NAV_ITEMS = [
   { to: "/", label: "Dashboard" },
   { to: "/containers", label: "Containers" },
+  { to: "/schedules", label: "Schedules" },
 ];
 
 export default function Layout({ username, onLogout, children }) {
@@ -38,6 +41,18 @@ export default function Layout({ username, onLogout, children }) {
                   </Link>
                 );
               })}
+              {GRAFANA_URL && (
+                <a
+                  href={GRAFANA_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-900 transition-colors"
+                >
+                  <ActivityIcon width={14} height={14} />
+                  Metrics
+                  <ExternalLinkIcon width={11} height={11} className="text-gray-400" />
+                </a>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-4">

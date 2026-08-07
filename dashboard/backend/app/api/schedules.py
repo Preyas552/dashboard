@@ -66,11 +66,15 @@ def list_schedules(db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=ScheduleOut, status_code=201)
-def create_schedule(body: ScheduleCreate, db: Session = Depends(get_db)):
+def create_schedule(
+    body: ScheduleCreate,
+    db: Session = Depends(get_db),
+    docker_client: docker.DockerClient = Depends(get_docker_client),
+):
     _validate_cron(body.cron_expression)
 
     try:
-        get_docker_client().containers.get(body.container_id)
+        docker_client.containers.get(body.container_id)
     except docker.errors.NotFound:
         raise HTTPException(
             status_code=404, detail=f"container '{body.container_id}' not found"

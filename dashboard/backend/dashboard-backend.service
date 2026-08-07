@@ -1,0 +1,18 @@
+[Unit]
+Description=Homelab Control Plane backend (FastAPI/uvicorn)
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=preyas
+WorkingDirectory=/home/preyas/Documents/homelab-stuff/dashboard/backend
+EnvironmentFile=/home/preyas/Documents/homelab-stuff/dashboard/backend/.env
+# Production-only overrides — everything else (secrets, DB) is shared with dev via the file above.
+Environment=ALLOWED_ORIGINS=https://dashboard.preyas.ca
+Environment=COOKIE_SECURE=true
+ExecStart=/home/preyas/Documents/homelab-stuff/dashboard/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8081
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -25,6 +25,14 @@ export default function App() {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    function handleUnauthorized() {
+      setStatus("anon");
+    }
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, []);
+
   async function handleLogout() {
     await logout();
     setStatus("anon");

@@ -1,12 +1,14 @@
 from datetime import datetime
 from typing import Literal
 
+import docker
 from apscheduler.triggers.cron import CronTrigger
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
+from app.core.docker_client import get_docker_client
 from app.core.scheduler import remove_job, sync_job
 from app.db import get_db
 from app.models.schedule import Schedule, ScheduleExecution
@@ -66,6 +68,13 @@ def list_schedules(db: Session = Depends(get_db)):
 @router.post("", response_model=ScheduleOut, status_code=201)
 def create_schedule(body: ScheduleCreate, db: Session = Depends(get_db)):
     _validate_cron(body.cron_expression)
+
+    try:
+        get_docker_client().containers.get(body.container_id)
+    except docker.errors.NotFound:
+        raise HTTPException(
+            status_code=404, detail=f"container '{body.container_id}' not found"
+        )
 
     schedule = Schedule(**body.model_dump())
     db.add(schedule)

@@ -1,7 +1,9 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from docker.errors import DockerException
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api import auth, containers, schedules
 from app.core.config import ALLOWED_ORIGINS
@@ -32,6 +34,11 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(containers.router)
 app.include_router(schedules.router)
+
+
+@app.exception_handler(DockerException)
+async def docker_exception_handler(request: Request, exc: DockerException):
+    return JSONResponse(status_code=503, content={"detail": f"Docker is unreachable: {exc}"})
 
 
 @app.get("/health")

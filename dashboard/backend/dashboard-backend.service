@@ -8,8 +8,11 @@ User=preyas
 WorkingDirectory=/home/preyas/Documents/homelab-stuff/dashboard/backend
 EnvironmentFile=/home/preyas/Documents/homelab-stuff/dashboard/backend/.env
 # Production-only overrides — everything else (secrets, DB) is shared with dev via the file above.
-Environment=ALLOWED_ORIGINS=https://dashboard.preyas.ca
-Environment=COOKIE_SECURE=true
+# Plain HTTP on the LAN (no TLS termination since this isn't exposed via a tunnel) —
+# COOKIE_SECURE=true here would silently break login, since browsers refuse to store
+# a Secure cookie over a non-https connection.
+Environment=ALLOWED_ORIGINS=http://dashboard.preyas.ca
+Environment=COOKIE_SECURE=false
 ExecStart=/home/preyas/Documents/homelab-stuff/dashboard/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8081
 Restart=on-failure
 RestartSec=3
